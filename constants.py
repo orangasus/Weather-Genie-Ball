@@ -43,3 +43,32 @@ WEATHER_CODES_DICT = {
     96: "Thunder",   # No hail distinction
     99: "Thunder"
 }
+
+I2C_ADDR     = 0x27
+I2C_NUM_ROWS = 2
+I2C_NUM_COLS = 16
+
+# WIFI_SSID = 'orangasus_net_Guest'
+# WIFI_PASSWORD = 'NiceTry1'
+
+WIFI_SSID = 'orangasus'
+WIFI_PASSWORD = 'NiceTry1'
+
+NUM_LEDS = 60
+MAX_TEMP = 50
+MIN_TEMP = -50
+STRIP_ACTIVE = False
+
+# Ultrasonic sensor constants
+DETECTION_DISTANCE = 20  # Detection threshold in centimeters
+TIMEOUT = 250_000        # 250ms timeout
+
+# API requests constants
+OPERATION_TIMEOUT = 5	# seconds
+MAX_REQUESTS = 3
+
+DISPLAY_TEXT = "{0}\n{1} - {2}c {3}%"
+WEATHER_URL = "https://api.open-meteo.com/v1/forecast?latitude={0}&longitude={1}&current=temperature_2m,relative_humidity_2m,is_day,weather_code"
+
+LOADING_COLOR = (0, 20, 0)
+LED_BRIGHTNESS = 0.5
