@@ -16,6 +16,7 @@ CURRENT_CITY = None
 CURRENT_LAT = None
 CURRENT_LON = None
 WEATHER_DATA = None
+CURRENT_COLOR = None
 
 # sensors/actuators objects
 onboard_led = machine.Pin("LED", Pin.OUT)
@@ -37,9 +38,9 @@ def get_info_from_ip():
     
     while requests_count < MAX_REQUESTS:     
         try:
-            data_from_ip = urequests.get("http://ip-api.com/json/", timeout=OPERATION_TIMEOUT).json()
+            data_from_ip = urequests.get(LOC_BY_IP_URL.format(LOC_BY_IP_API_KEY), timeout=OPERATION_TIMEOUT).json()
             
-            lat, lon = data_from_ip['lat'], data_from_ip['lon']
+            lat, lon = data_from_ip['loc'].split(',')
             city = data_from_ip['city']
             
             global CURRENT_CITY, CURRENT_LAT, CURRENT_LON
@@ -67,7 +68,19 @@ def connect_to_wifi():
         pass
     global CURRENT_IP
     CURRENT_IP = (wlan.ifconfig())[0]
+    utime.sleep(1)
     
+def led_strip_glowup(color):
+    for i in range(0, 100):
+        led_strip.fill((round(color[0] * i/100), round(color[1] * i/100), round(color[2] * i/100)))
+        led_strip.write()
+        utime.sleep(GLOWUP_SPEED)
+        
+def led_strip_glowdown(color):
+    for i in range(100, -1, -1):
+        led_strip.fill((round(color[0] * i/100), round(color[1] * i/100), round(color[2] * i/100)))
+        led_strip.write()
+        utime.sleep(GLOWDOWN_SPEED)
     
 def get_weather_data_by_location():
     request_count = 0
@@ -76,12 +89,12 @@ def get_weather_data_by_location():
         request_start = utime.ticks_ms()
         
         try: 
-            url = WEATHER_URL.format(CURRENT_LAT, CURRENT_LON)
+            url = WEATHER_URL.format(CURRENT_LAT, CURRENT_LON, WEATHER_API_KEY)
             weather_data = urequests.get(url, timeout=OPERATION_TIMEOUT).json()
             
-            weather_code = weather_data['current']['weather_code']
-            weather_state = WEATHER_CODES_DICT[weather_code]
-            weather_dict = {'temperature': round(weather_data['current']['temperature_2m']), 'humidity':weather_data['current']['relative_humidity_2m'],
+            weather_state = weather_data['current']['weather'][0]['main']
+            print(weather_state)
+            weather_dict = {'temperature': round(weather_data['current']['temp'] - 272), 'humidity':weather_data['current']['humidity'],
                             'weather_state':weather_state}  
             
             global WEATHER_DATA
@@ -107,22 +120,17 @@ def display_weather_data():
     
 def led_strip_on():
     color = calculate_rgb_for_temp(WEATHER_DATA['temperature'])
+    global CURRENT_COLOR
+    CURRENT_COLOR = color
     print(f"--> Turning on the LED, color: {color}")
-    led_strip.fill(color)
-    led_strip.write()
-    
-    
-def led_strip_load():
-    color = LOADING_COLOR
-    print(f"--> Turning on the LED, color: {color}")
-    led_strip.fill(color)
-    led_strip.write()
+    led_strip_glowup(color)
     
     
 def led_strip_off():
     print(f"--> Shutting off the LED")
-    led_strip.fill((0,0,0))
-    led_strip.write()
+    global CURRENT_COLOR
+    led_strip_glowdown(CURRENT_COLOR)
+    CURRENT_COLOR = None
     
     
 def calculate_rgb_for_temp(temp):
@@ -174,9 +182,9 @@ def interpret_distance():
 
 
 def activate_ball():
+    led_strip_glowup(LOADING_COLOR)
     lcd.display_on()
     lcd.backlight_on()
-    led_strip_load()
     
     if weather_function() == 0:  
         lcd.clear()
@@ -199,7 +207,7 @@ def setup():
     global STRIP_ACTIVE
     STRIP_ACTIVE = False
     
-    led_strip_off()
+#     led_strip_off()
     lcd.clear()
     
     lcd.putstr("Connecting\nTo WiFi...")
@@ -218,11 +226,13 @@ def setup():
         print(f"--> IP data fetched: {data_from_ip}")
         lcd.clear()
         lcd.putstr("Setup Complete!")
+        led_strip_glowup(LOADING_COLOR)
         return 0
     
 def weather_function():
     lcd.clear()
     lcd.putstr("Fetching\nWeather...")
+    led_strip_glowdown(LOADING_COLOR)
     if get_weather_data_by_location() == -1:
         print("--> Failed to Weather data :(")
         lcd.clear()
