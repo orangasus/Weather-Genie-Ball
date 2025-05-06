@@ -23,7 +23,9 @@ Built during: Principles of Digital Fabrication (Spring 2025)
 ...
 
 ## Code Architecture🧩
-![code diagram](./Images/code_diagram.png)
+<div align="center">
+  <img src="./Images/code_diagram.svg" alt="Workflow" style="height: 70vh; max-height: 500px;">
+</div>
 
 ## Libraries & Modules 📂
 - LcdApi & I2cLcd - LCD control ([Source](https://github.com/T-622/RPI-PICO-I2C-LCD))
