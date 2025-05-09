@@ -24,7 +24,7 @@ Built during: Principles of Digital Fabrication (Spring 2025)
   <img src="./Images/circuit_diagram.svg" alt="Workflow" style="height: 70vh; max-height: 500px;">
 </div>
 
-## Code Architecture🧩
+## Code Architecture 🧩
 <div align="center">
   <img src="./Images/code_diagram.svg" alt="Workflow" style="height: 70vh; max-height: 500px;">
 </div>
