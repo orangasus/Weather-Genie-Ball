@@ -20,7 +20,9 @@ Built during: Principles of Digital Fabrication (Spring 2025)
 - Plywood stand to hold the circuit
 
 ## Circuit Diagram ⚡
-...
+<div align="center">
+  <img src="./Images/circuit_diagram.svg" alt="Workflow" style="height: 70vh; max-height: 500px;">
+</div>
 
 ## Code Architecture🧩
 <div align="center">
