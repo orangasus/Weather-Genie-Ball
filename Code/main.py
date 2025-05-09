@@ -18,21 +18,20 @@ CURRENT_LON = None
 WEATHER_DATA = None
 CURRENT_COLOR = None
 
-# sensors/actuators objects
-onboard_led = machine.Pin("LED", Pin.OUT)
-# For ultrasonic sensor
+# Sensors/actuators objects
+# Variables for the Ultrasonic sensor
 trigger = machine.Pin(8, machine.Pin.OUT)
 echo = machine.Pin(9, machine.Pin.IN)
-# For LED strip
+# Variables for the LED Strip
 led_strip = NeoPixel(Pin(5, Pin.OUT), NUM_LEDS)
-# For LCD display
+# Variables for the LCD Display
 i2c = I2C(0, sda=machine.Pin(12), scl=machine.Pin(13), freq=400000)
 lcd = I2cLcd(i2c, I2C_ADDR, I2C_NUM_ROWS, I2C_NUM_COLS)
 
-# network handling object
+# Network handling object
 wlan = network.WLAN(network.STA_IF)
   
-# makes api request to get lat/long and city by ip address
+# Makes api request to get lat/long and city by IP address
 def get_info_from_ip():
     requests_count = 0
     
@@ -60,7 +59,7 @@ def get_info_from_ip():
     return -1
     
 
-# connects to wifi
+# Connects to WiFi
 def connect_to_wifi():
     wlan.active(True)
     wlan.connect(WIFI_SSID, WIFI_PASSWORD)
@@ -69,19 +68,25 @@ def connect_to_wifi():
     global CURRENT_IP
     CURRENT_IP = (wlan.ifconfig())[0]
     utime.sleep(1)
-    
+
+
+# Makes LED Strip glow up, slowly increasing brightness
 def led_strip_glowup(color):
     for i in range(0, 100):
         led_strip.fill((round(color[0] * i/100), round(color[1] * i/100), round(color[2] * i/100)))
         led_strip.write()
         utime.sleep(GLOWUP_SPEED)
-        
+
+
+# Makes LED Strip glow down, slowly decreasing brightness
 def led_strip_glowdown(color):
     for i in range(100, -1, -1):
         led_strip.fill((round(color[0] * i/100), round(color[1] * i/100), round(color[2] * i/100)))
         led_strip.write()
         utime.sleep(GLOWDOWN_SPEED)
-    
+
+
+# Makes API request to fetch current weather params by lat/long
 def get_weather_data_by_location():
     request_count = 0
     
@@ -111,13 +116,15 @@ def get_weather_data_by_location():
     print("--> Max requests reached!")
     return -1
     
-    
+
+# Displays weather stats on the LCD display
 def display_weather_data():
     lcd.backlight_on()
     lcd.clear()
     lcd.putstr(DISPLAY_TEXT.format(CURRENT_CITY, WEATHER_DATA['weather_state'], WEATHER_DATA['temperature'], WEATHER_DATA['humidity']))
     
-    
+
+# Turns on the LED Strip
 def led_strip_on():
     color = calculate_rgb_for_temp(WEATHER_DATA['temperature'])
     global CURRENT_COLOR
@@ -125,14 +132,16 @@ def led_strip_on():
     print(f"--> Turning on the LED, color: {color}")
     led_strip_glowup(color)
     
-    
+
+# Turns off the LED Strip
 def led_strip_off():
     print(f"--> Shutting off the LED")
     global CURRENT_COLOR
     led_strip_glowdown(CURRENT_COLOR)
     CURRENT_COLOR = None
     
-    
+
+# Calculates RGB parameter for LED Strip based on current temperature
 def calculate_rgb_for_temp(temp):
     if temp > MAX_TEMP:
         temp = MAX_TEMP
@@ -146,6 +155,7 @@ def calculate_rgb_for_temp(temp):
     return (red,green,blue)
 
 
+# Measures current distance to the object in front of the ultrasonic sensor
 def measure_distance():
     # Send ultrasonic pulse
     trigger.low()
@@ -174,6 +184,7 @@ def measure_distance():
     return round(distance)
 
 
+# Checks if object in front of the ultrasonic sensor is within detection range
 def interpret_distance():
     current_distance = measure_distance()
     if current_distance < DETECTION_DISTANCE:
@@ -181,6 +192,7 @@ def interpret_distance():
     return False
 
 
+# Turns on the ball by calling all necessary functions after detecting object within range
 def activate_ball():
     led_strip_glowup(LOADING_COLOR)
     lcd.display_on()
@@ -193,7 +205,8 @@ def activate_ball():
         global STRIP_ACTIVE
         STRIP_ACTIVE = True
     
-    
+
+# Turns off the ball, if detects object withing range and ball currently active, by calling all necessary functions
 def deactivate_ball():
     lcd.clear()
     led_strip_off()
@@ -202,7 +215,8 @@ def deactivate_ball():
     global STRIP_ACTIVE
     STRIP_ACTIVE = False
    
-   
+
+# Conducts initial setup once the ball is connected to power source
 def setup():
     global STRIP_ACTIVE
     STRIP_ACTIVE = False
@@ -228,7 +242,9 @@ def setup():
         lcd.putstr("Setup Complete!")
         led_strip_glowup(LOADING_COLOR)
         return 0
-    
+
+
+# Controls weather-related logic e.g. fetching weather, displaying it, making necessary checks
 def weather_function():
     lcd.clear()
     lcd.putstr("Fetching\nWeather...")
@@ -243,7 +259,9 @@ def weather_function():
         lcd.putstr("All Done!")
         print(f"--> Weather data fetched: {WEATHER_DATA}")
         return 0
-    
+
+
+# Main loop function
 def main():
     global STRIP_ACTIVE
     
