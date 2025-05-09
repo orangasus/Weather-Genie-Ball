@@ -35,6 +35,11 @@ Built during: Principles of Digital Fabrication (Spring 2025)
 - Neopixel - LED Strip Control
 - Machine & Utime - GPIO & Timing
 
+## Gallery / Timeline ⏳
+| <img src="./Pics/Img1.jpg" width="150"> | <img src="./Pics/Img2.jpg" width="150"> | <img src="./Pics/Img3.jpg" width="150"> | <img src="./Pics/Img4.jpg" width="150"> |
+|----------------------------------------|----------------------------------------|----------------------------------------|----------------------------------------|
+| <img src="./Pics/Img5.jpg" width="150"> | <img src="./Pics/Img6.jpg" width="150"> | <img src="./Pics/Img7.jpg" width="150"> | <img src="./Pics/Img8.jpg" width="150"> |
+
 ## Potential Improvements 🚀 
 - Implementing async functionality for smoother workflow
 - Expanding LED Strip patterns to cover more weather stats
